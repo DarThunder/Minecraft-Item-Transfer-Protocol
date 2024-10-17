@@ -30,7 +30,7 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft](http
 - Implementation of checksums.
 
 ## License
-This project is licensed under the GNU v3 License. See the [LICENSE](./LICENSE) file for more details.
+This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
 
 ## Credits
 Developed by DarThunder.
