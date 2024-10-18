@@ -24,10 +24,7 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft](http
 * getSupportedVersion(): Get the supported version of the protocol.
 
 ## Changelog
-### 0.5v
-- Session creation.
-- Message validation.
-- Implementation of checksums.
+You should see the changlog version in [CHANGELOG.](./CHANGELOG.md)
 
 ## License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
