@@ -1,20 +1,20 @@
 # Changelog
 
 ## 0.5
-### features
+### Features
 - Session creation.
 - Message validation.
 - Implementation of checksums.
 
 ## 0.6
-### features
+### Features
 - init() method has been added
-- automatic modem assignment
-- support for TCP and MIPT message validation
-- recipient validation Major improvements:
-- required "method" header in the buildMITPMessage function
+- Automatic modem assignment
+- Support for TCP and MIPT message validation
+- Recipient validation Major improvements:
+- Required "method" header in the buildMITPMessage function
 - Checksum now works with nested tables
 
 ### Fixes
-- data validation logic
-- session validation logic
+- Data validation logic
+- Session validation logic
