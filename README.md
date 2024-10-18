@@ -29,6 +29,9 @@ You should see the changlog version in [CHANGELOG.](./CHANGELOG.md)
 ## © License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
 
+## ☕ Tips
+<a target="_blank" href="https://buymeacoffee.com/darthunder">Buy me a Coffee</a>
+
 ## 💎 Credits
 ### Developers
 - DarThunder
