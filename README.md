@@ -1,9 +1,9 @@
 # Minecraft Item Transfer Protocol (MITP)
 
-## About
+## 🔎 About
 MITP is a protocol for item transfer within Minecraft using [ComputerCraft](https://github.com/dan200/ComputerCraft). The goal is to establish an efficient connection between devices for the reliable exchange of items and data in Minecraft. MITP simulates the behavior of a basic TCP/IP protocol to ensure transmission reliability and security.
 
-## Features
+## ⚙️ Features
 - Item Transfers: Protocol designed to send items between computers within Minecraft.
 - Session Management: Session management to maintain reliable connections between devices.
 - Message Validation: Validation of incoming data, including headers and checksums.
@@ -11,7 +11,7 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft](http
 - Ephemeral Ports: Use of ephemeral ports for temporary communications.
 - Logs system: Activity logging for auditing and debugging purposes.
 
-## Future Features
+## ✅ Future Features
 * parseRequest(): Parse incoming requests.
 * buildResponse(): Build responses to requests.
 * ParseMessageBody(): Parse the message body.
@@ -23,11 +23,15 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft](http
 * emitEvent(): Emit events for monitoring.
 * getSupportedVersion(): Get the supported version of the protocol.
 
-## Changelog
+## 🧾 Changelog
 You should see the changlog version in [CHANGELOG.](./CHANGELOG.md)
 
-## License
+## © License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
 
-## Credits
-Developed by DarThunder.
+## 💎 Credits
+### Developers
+- DarThunder
+
+### Contributors
+- JoseANG3L
