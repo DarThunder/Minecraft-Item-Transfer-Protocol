@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5v
+## 0.5
 ### features
 - Session creation.
 - Message validation.
