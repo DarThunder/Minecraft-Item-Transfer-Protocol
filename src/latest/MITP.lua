@@ -1,27 +1,29 @@
-
 --Funciones a agregar:
 --verifyCredentials()
 --sendErrorResponse()
---encryptData()
 --checkAccessPermissions()
+local AES = require("lib/encryptLib")
+local VALIDATORS = require("lib/validatorLib")
 
+local HANDLERS = {}
 local MITP = {}
 MITP.client = {}
-MITP.version = "0.7"
+MITP.version = "0.8"
+MITP.ephemeralPort = nil
+MITP.standardPort = nil
+MITP.sessions = {}
+
 
 --Inits
 local IP = nil
 local modem = nil
 local sequenceNumber = nil
-MITP.ephemeralPort = nil
-MITP.standardPort = nil
-MITP.sessions = {}
-local validStatus = {["pending"] = true, ["complete"] = true, ["error"] = true}
-local flags = {["SYN"] = true, ["SYN-ACK"] = true, ["ACK"] = true, ["FIN"] = true}
 local messages = {}
 local events = {}
+local lastAccion = {}
+local secrets = {}
 
-local function validModem()
+local function findModem()
     local modems = {peripheral.find("modem")}
     for i = 1, #modems do
         if modems[i].isWireless() then
@@ -33,35 +35,55 @@ end
 
 function MITP.init()
     IP = os.getComputerID()
-    modem = validModem()
+    modem = findModem()
     MITP.standardPort = 80
     modem.open(MITP.standardPort)
 end
 
---funciones de registro/deputación
-function MITP.log(log, logType)
-    local date = os.date("%Y-%m-%d")
-    local file = "logs/log_" .. date .. ".log"
-    local logFile = fs.open(file, "a")
-
-    local hour = textutils.formatTime(os.time("local"))
-    local errMsg = "[" .. hour .. "] [" .. (logType) .. "]: " .. log .. "\n"
-    logFile.write(errMsg)
-    logFile.close()
+function MITP.depose()
+    if #MITP.sessions > 0 then
+        for ip, _ in pairs(MITP.sessions) do
+            MITP.close(ip)
+        end
+    end
+    for i = 2^0, 2^16-1 do
+        modem.close(i)
+    end
 end
 
-function MITP.displayError(err)
-    error(err)
+
+--funciones de registro/depuración
+function MITP.log(log, logType)
+    if log and logType then
+        local date = os.date("%Y-%m-%d")
+        local file = "logs/log_" .. date .. ".log"
+        local logFile = fs.open(file, "a")
+
+        local hour = textutils.formatTime(os.time("local"))
+        local errMsg = "[" .. hour .. "] [" .. (logType) .. "]: " .. log .. "\n"
+        logFile.write(errMsg)
+        logFile.close()
+    end
 end
 
 
 --funciones genericas
 local function await(ms)
-    ms = ms or 5
+    ms = ms or 3
     os.startTimer(ms)
-    local event = os.pullEvent()
-    local _ = event == "modem_message" and true or MITP.log("Connection time out", "ERROR")
-    return _
+    while true do
+        local event, _, channel, replyChannel, message = os.pullEvent()
+        if event == "modem_message" then
+            local valid = HANDLERS.proccessRequest(message, channel, replyChannel)
+            if valid and (valid.flag == "SYN_ACK" or valid.flag == "ACK") then
+                HANDLERS.handlerTCPFlags(valid, channel, replyChannel)
+                return
+            end
+        elseif event == "timer" then
+            MITP.log("Connection time out", "ERROR")
+            return
+        end
+    end
 end
 
 local function shrieker(eventType, ipSession, message)
@@ -69,11 +91,15 @@ local function shrieker(eventType, ipSession, message)
     local callbacks = events[eventType]
     if callbacks then
         for _, callback in ipairs(callbacks) do
-            callback(ipSession, message)
+            local success = pcall(function()
+                callback(ipSession, message)
+            end)
+            if success then
+                lastAccion[1] = {action = callback, param1 = ipSession, param2 = message}
+            end
         end
     end
 end
-
 
 function MITP.on(eventType, callback)
     if type(callback) ~= "function" then
@@ -87,127 +113,17 @@ function MITP.on(eventType, callback)
 end
 
 
---funciones de validacion
-local function validateField(condition, errorMessage)
-    if not condition then
-        return false, errorMessage, "ERROR"
-    end
-    return true
-end
-
-local function validateType(buildedMessage)
-    local valid, errMessage, logType = validateField(type(buildedMessage) == "table", "Expecting table, got " .. type(buildedMessage))
-    if not valid then return valid, errMessage, logType end
-    return true
-end
-
-local function validatePresence(buildedMessage)
-    local valid, errMessage, logType = validateField((buildedMessage.headers or buildedMessage.flag), "Headers are required")
-    if not valid then return valid, errMessage, logType end
-    return true
-end
-
-local function validateFlags(buildedMessage)
-    local valid, errMessage, logType
-    if buildedMessage.headers then
-        valid, errMessage, logType = validateField(buildedMessage.headers.status and buildedMessage.headers.content_type and buildedMessage.headers.destination and buildedMessage.headers.checksum, "Incomplete headers")
-        if not valid then return valid, errMessage, logType end
-
-        valid, errMessage, logType= validateField(validStatus[buildedMessage.headers.status], "Invalid Status")
-        if not valid then return valid, errMessage, logType end
-
-        valid, errMessage, logType = validateField(MITP.sessions[buildedMessage.headers.source], "Failed Resolve IP")
-        if not valid then return valid, errMessage, logType end
-
-    elseif buildedMessage.flag then
-        valid, errMessage, logType = validateField((buildedMessage.source and buildedMessage.destination and buildedMessage.flag and buildedMessage.sequence_number and buildedMessage.ack), "Incomple TCP parameters")
-        if not valid then return valid, errMessage, logType end
-
-        valid, errMessage, logType = validateField(flags[buildedMessage.flag], "Unknown flag")
-        if not valid then return valid, errMessage, logType end
-    end
-    return true
-end
-
-function MITP.validateInput(buildedMessage)
-    local validators = {validateType, validatePresence, validateFlags}
-
-    for _, validator in ipairs(validators) do
-        local valid, errMessage, logType = validator(buildedMessage)
-        if not valid then return valid, errMessage, logType end
-    end
-
-    return true, "Validation successful", "INFO"
-end
-
-function MITP.validateSession(ip)
-    if not MITP.sessions[ip] then
-        return false, "Failed to Resolve IP", "ERROR"
-    end
-    return true
-end
-
-function MITP.validatePort(port)
-    if modem.isOpen(port) then
-        return true, "Port already openned", "Warn"
-    end
-    return false
-end
-
-function MITP.validateRecipent(recipent)
-    return IP == recipent
-end
-
-
---funciones de integridad de data
-local function sumString(str)
-    local sum = 0
-    for i = 1, #str do
-        sum = sum + string.byte(str, i)
-    end
-    return sum
-end
-
-local function sumTable(t)
-    local sum = 0
-    for _, value in pairs(t) do
-        if type(value) == "table" then
-            sum = sum + sumTable(value)
-        elseif type(value) == "string" then
-            sum = sum + sumString(value)
-        elseif type(value) == "number" then
-            sum = sum + value
-        end
-    end
-    return sum
-end
-
-local function checksum(data)
-    local checksumTotal = 0
-
-    if type(data) == "string" then
-        checksumTotal = checksumTotal + sumString(data)
-    elseif type(data) == "number" then
-        checksumTotal = checksumTotal + data
-    elseif type(data) == "table" then
-        checksumTotal = checksumTotal + sumTable(data)
-    else
-        MITP.displayError("Data type not supported. try string or table")
-    end
-
-    return string.format("%02x", checksumTotal % 256)
-end
-
-
---funciones de manipluación de data
-local function buildTCPMessage(destinationIP, flag, sequence_number, acknowledgmentNumber)
+--funciones de manipulación de data
+local function buildTCPMessage(destinationIP, flag, sequence_number, acknowledgmentNumber, public_key)
     local TCPmessage = {
         source = IP,
         destination = destinationIP,
         flag = flag,
         sequence_number = sequence_number,
-        ack = acknowledgmentNumber
+        ack = acknowledgmentNumber,
+        public_key = public_key,
     }
+    TCPmessage.checksum = AES.sha256(MITP.serializeMessage(TCPmessage))
     return TCPmessage
 end
 
@@ -224,7 +140,7 @@ function MITP.buildMessage(destinationIP, method, status, body, contentType)
         },
         body = body
     }
-    MITPmessage.headers.checksum = checksum(MITPmessage)
+    MITPmessage.headers.checksum = AES.sha256(MITP.serializeMessage(MITPmessage))
     return MITPmessage
 end
 
@@ -241,29 +157,52 @@ function MITP.parseMessageBody(message)
 end
 
 
+--Funciones de consistencia de data
+local function sendRECV(ip, channel, replyChannel)
+    local recvPacket = buildTCPMessage(ip, "RECV", sequenceNumber, 0)
+    MITP.send(recvPacket, channel, replyChannel)
+end
+local function sendNRECV(ip, channel, replyChannel)
+    local nrecvPacket = buildTCPMessage(ip, "NRECV", sequenceNumber, 0)
+    MITP.send(nrecvPacket, channel, replyChannel)
+end
+
+
 --funciones de sesion
-local function createSession(ip, port, sequence_number)
-    if MITP.validateSession(ip) then
+local function createSession(ip, port, replyPort, sharedKey, salt)
+    if MITP.sessions[ip] then
         MITP.log("Session already exists", "WARN")
+        return
     end
-    MITP.sessions[ip] = {port = port, sequence_number = sequence_number}
+   MITP.sessions[ip] = {port = port, reply_port = replyPort, shared_key = sharedKey, salt = salt}
     MITP.log("Session with IP " .. ip .. " created succesful", "INFO")
     shrieker("connect", ip, nil)
 end
 
 local function destroySession(ip)
-    local valid, errMessage, logType = MITP.validateSession(ip)
-    if not valid then MITP.log(errMessage, logType) return end
+    if not MITP.sessions[ip] then
+        MITP.log("Failed to resolve session", "ERROR")
+        return
+    end
 
     MITP.sessions[ip] = nil
     MITP.log("Session with IP " .. ip .. " destroyed succesful", "INFO")
     shrieker("disconnect", ip, nil)
 end
 
+local function getSession(port)
+    for key, value in pairs(MITP.sessions) do
+        if value.reply_port == port then
+            return key
+        end
+    end
+    return nil
+end
+
 
 --funciones de conexión
 function MITP.openEphemeralPort()
-    MITP.ephemeralPort = math.random(2^15 * 3, 2^16 - 1)
+    MITP.ephemeralPort = math.random(2^15 * 1.5, 2^16 - 1)
     modem.open(MITP.ephemeralPort)
 end
 
@@ -273,7 +212,18 @@ end
 
 function MITP.send(buildedMessage, channel, replyChannel)
     local parsedMessage = MITP.serializeMessage(buildedMessage)
+    if buildedMessage.headers then
+        local sharedKey = MITP.sessions[buildedMessage.headers.destination].shared_key
+        local salt = MITP.sessions[buildedMessage.headers.destination].salt
+        parsedMessage = AES.encryptAES(parsedMessage, sharedKey, salt)
+    end
     modem.transmit(channel, replyChannel, parsedMessage)
+end
+
+function MITP.sendErrorResponse(destinationIP, errorMessage)
+    local errorResponse = MITP.buildMessage(destinationIP, "ERROR", "error", errorMessage, "application/json")
+    MITP.send(errorResponse, MITP.standardPort)
+    MITP.log("Error response sent to " .. destinationIP .. ": " .. errorMessage, "WARN")
 end
 
 local function listenConnection(filter)
@@ -283,7 +233,10 @@ local function listenConnection(filter)
 end
 
 function MITP.open(destinationIP)
-    local synPacket = buildTCPMessage(destinationIP, "SYN", sequenceNumber, 0)
+    sequenceNumber = math.random(2^0, 2^32)
+    AES.generateSecrets(secrets)
+    MITP.openEphemeralPort()
+    local synPacket = buildTCPMessage(destinationIP, "SYN", sequenceNumber, 0, secrets.public_key)
     MITP.send(synPacket, MITP.standardPort, MITP.ephemeralPort)
     MITP.log("SYN sent, waiting for SYN-ACK...", "INFO")
     await()
@@ -291,14 +244,17 @@ end
 
 local function openResponse(parsedMessage, sendChannel, replyChannel)
     sequenceNumber = math.random(2^0, 2^32)
-    local synAckPacket = buildTCPMessage(parsedMessage.source, "SYN-ACK", sequenceNumber, parsedMessage.sequence_number + 1)
+    AES.generateSecrets(secrets)
+    secrets.shared_key = AES.modExp(parsedMessage.public_key, secrets.private_key, secrets.p)
+    secrets.shared_key = tostring(secrets.shared_key)
+    local synAckPacket = buildTCPMessage(parsedMessage.source, "SYN_ACK", sequenceNumber, parsedMessage.sequence_number + 1, secrets.public_key)
     MITP.send(synAckPacket, sendChannel, replyChannel)
     MITP.log("SYN-ACK sent, awaiting final ACK...", "INFO")
-    await()
 end
 
-function MITP.close(ip, replyChannel)
+function MITP.close(ip)
     local sendChannel = MITP.sessions[ip].port
+    local replyChannel = MITP.sessions[ip].reply_port
     local closePacket = buildTCPMessage(ip, "FIN", sequenceNumber, 0)
     MITP.send(closePacket, sendChannel, replyChannel)
     MITP.log("FIN sent, waiting for ACK...", "INFO")
@@ -314,34 +270,73 @@ local function closeResponse(parsedMessage, sendChannel, replyChannel)
     local acknowledgmentNumber = parsedMessage.sequence_number + 1
     local ackPacket = buildTCPMessage(parsedMessage.source, "ACK", sequenceNumber, acknowledgmentNumber)
 
-    if MITP.send(ackPacket, sendChannel, replyChannel) then
-        destroySession(parsedMessage.source)
-        MITP.log("Connection closed successfully from remote side.", "INFO")
-    else
-        MITP.log("Failed to send ACK for FIN packet", "ERROR")
-    end
+    MITP.send(ackPacket, sendChannel, replyChannel)
+    destroySession(parsedMessage.source)
+    MITP.log("Connection closed successfully from remote side.", "INFO")
 end
 
-local function synAckResponse(parsedMessage)
-    sequenceNumber = math.random(2^0, 2^32)
+local function synAckResponse(parsedMessage, channel, replyChannel)
+    secrets.shared_key = AES.modExp(parsedMessage.public_key, secrets.private_key, secrets.p)
+    secrets.shared_key = tostring(secrets.shared_key)
+    secrets.salt = AES.sha256(secrets.shared_key)
+
     local ackPacket= buildTCPMessage(parsedMessage.source, "ACK", sequenceNumber, parsedMessage.sequence_number + 1)
     MITP.send(ackPacket, MITP.standardPort, MITP.ephemeralPort)
-    createSession(parsedMessage.source, MITP.standardPort, parsedMessage.sequence_number)
+    createSession(parsedMessage.source, channel, replyChannel, secrets.shared_key, secrets.salt)
     MITP.log("Received SYN-ACK, connection established", "INFO")
 end
 
-local function ackResponse(parsedMessage)
+local function ackResponse(parsedMessage, channel, replyChannel)
     if parsedMessage.ack == sequenceNumber + 1 then
-        MITP.sequenceNumber = parsedMessage.ack
-        MITP.log("Connection handshake complete with ACK", "INFO")
+        if MITP.sessions[parsedMessage.source] then
+            destroySession(parsedMessage.source)
+        else
+            secrets.salt = AES.sha256(secrets.shared_key)
+            createSession(parsedMessage.source, channel, replyChannel, secrets.shared_key, secrets.salt)
+            MITP.log("Connection handshake complete with ACK", "INFO")
+        end
     else
         MITP.log("ACK sequence mismatch", "ERROR")
     end
 end
 
 
+--Procesadores
+function HANDLERS.proccessRequest(message, channel, replyChannel)
+    local parsedMessage = MITP.parseMessage(message)
+
+    if not parsedMessage then
+        local ip = getSession(replyChannel)
+        local secret = MITP.sessions[ip].shared_key
+        local salt = MITP.sessions[ip]. salt
+        message = AES.decryptAES(message, secret, salt)
+
+        if not message then
+            MITP.log("Failed to parse message", "ERROR")
+            return nil, nil, nil
+        else
+            parsedMessage = MITP.parseMessage(message)
+
+        end
+    end
+
+    local ip = parsedMessage.headers and parsedMessage.headers.source or parsedMessage.source
+    local valid, errMessage, logType = VALIDATORS.validateInput(parsedMessage, MITP.sessions, IP)
+    if valid then
+        if (parsedMessage.flag and parsedMessage.flag ~= "RECV") or parsedMessage.headers then
+            sendRECV(ip, channel, replyChannel)
+        end
+        return parsedMessage, channel, replyChannel
+    else
+        MITP.log(errMessage, logType)
+        sendNRECV(ip, channel, replyChannel)
+        return nil, nil, nil
+    end
+end
+
+
 --handlers
-local function handlerTCPFlags(packetMessage, channel, replyChannel)
+function HANDLERS.handlerTCPFlags(packetMessage, channel, replyChannel)
     local tcpHandlers = {
         SYN = function()
             MITP.log("Synchronize request", "INFO")
@@ -349,15 +344,22 @@ local function handlerTCPFlags(packetMessage, channel, replyChannel)
         end,
         SYN_ACK = function ()
             MITP.log("Synchronize response", "INFO")
-            synAckResponse(packetMessage)
+            synAckResponse(packetMessage, channel, replyChannel)
         end,
         ACK = function ()
             MITP.log("ACK response", "INFO")
-            ackResponse(packetMessage)
+            ackResponse(packetMessage, channel, replyChannel)
         end,
         FIN = function()
             MITP.log("Terminate connection request", "INFO")
             closeResponse(packetMessage, channel, replyChannel)
+        end,
+        RECV = function ()
+            --MITP.log("Succesful receive packet", "INFO")
+        end,
+        NRECV = function ()
+            MITP.log("Packet received with errors, resending", "WARN")
+            lastAccion[1].action(lastAccion[1].param1, lastAccion[1].param2)
         end,
         }
 
@@ -366,23 +368,23 @@ local function handlerTCPFlags(packetMessage, channel, replyChannel)
         handler()
     else
         MITP.log("Unknown TCP flag '" .. packetMessage.flag .. "'", "WARN")
+        sendNRECV(packetMessage.source, channel, replyChannel)
     end
 end
 
-local function handlerMITPMessages(packetMessage)
+function HANDLERS.handlerMITPMessages(packetMessage)
     local eventType = packetMessage.headers.method
     shrieker(eventType, packetMessage.headers.source, packetMessage)
 end
-
 
 local function handlerRequests()
     while true do
         local value = table.remove(messages)
         if value then
             if value.message.flag then
-                handlerTCPFlags(value.message, value.sourceIP, value.replyIP)
+                HANDLERS.handlerTCPFlags(value.message, value.port, value.replyPort)
             elseif value.message.headers then
-                handlerMITPMessages(value.message)
+                HANDLERS.handlerMITPMessages(value.message)
             end
         end
         os.sleep(0.1)
@@ -393,37 +395,16 @@ end
 --Loops
 function MITP.recv()
     local _, _, channel, replyChannel, message, _ = listenConnection("modem_message")
-    local parsedMessage = MITP.parseMessage(message)
-    if not parsedMessage then
-        MITP.log("Failed to parse message", "ERROR")
-        return nil, nil, nil
-    end
-    local valid, errMessage, logType = MITP.validateInput(parsedMessage)
-    if valid then
-        if parsedMessage.flag then
-            valid = MITP.validateRecipent(parsedMessage.destination)
-        elseif parsedMessage.headers then
-            valid = MITP.validateRecipent(parsedMessage.headers.destination)
-        else
-            valid = false
-        end
-        --print(valid)
-        if valid then return parsedMessage, channel, replyChannel end
-    else
-        MITP.log(errMessage, logType)
-    end
-
-    return nil, nil, nil
+    return HANDLERS.proccessRequest(message, channel, replyChannel)
 end
 
 function MITP.autoRecv()
     local function receiveLoop()
-        while true do
+        while IP do
             local parsedMessage, channel, replyChannel = MITP.recv()
             if parsedMessage then
                 table.insert(messages, {message = parsedMessage, port = channel, replyPort = replyChannel})
             end
-            --os.sleep(0.1)
         end
     end
 
@@ -431,10 +412,3 @@ function MITP.autoRecv()
 end
 
 return MITP
-
---[[function MITP.handleError(err)
-    MITP.log(err, "ERROR")
-    MITP.closeEphemeralPort()
-    sequenceNumber = nil
-    MITP.displayError(err)
-end]]
