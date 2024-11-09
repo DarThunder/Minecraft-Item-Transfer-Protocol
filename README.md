@@ -8,20 +8,26 @@
 MITP is a protocol for item transfer within Minecraft using [ComputerCraft](https://github.com/dan200/ComputerCraft). The goal is to establish an efficient connection between devices for the reliable exchange of items and data in Minecraft. MITP simulates the behavior of a basic TCP/IP protocol to ensure transmission reliability and security.
 
 ## ⚙️ Features
-- Item Transfers: Protocol designed to send items between computers within Minecraft.
-- Session Management: Session management to maintain reliable connections between devices.
-- Message Validation: Validation of incoming data, including headers and checksums.
-- Secure Connections: Implementation of authentication and data encryption functions.
-- Ephemeral Ports: Use of ephemeral ports for temporary communications.
-- Logs system: Activity logging for auditing and debugging purposes.
+- Item Transfers: Send and receive items between devices within Minecraft.
+- Session Management: Maintain reliable connections during item transfers.
+- Message Validation: Ensures messages are valid with headers, checksums, and authentication.
+- Secure Connections: Data encryption and authentication for secure communication.
+- Ephemeral Ports: Temporary communication ports for secure, short-term connections.
+- Event Handling: New event-subscription system for better flexibility in handling actions.
+- Automatic Message Handling: Supports automatic handling of TCP and MITP messages.
+- Asynchronous Communication: Non-blocking communication for better performance.
+- Encryption: AES encryption and SHA-256 for data security.
+- Logging: Built-in activity logging for auditing and debugging.
 
 ## ✅ Future Features
-* verifyCredentials(): Verify authentication credentials.
-* checkAccessPermissions(): Verify access permissions.
-* getSupportedVersion(): Get the supported version of the protocol.
+- Request Parsing: Parse incoming requests to extract relevant data.
+- Response Handling: Automatically build and send responses.
+- Credential Verification: Ensure that only authorized devices can send or receive data.
+- Error Handling: Gracefully handle and report errors during communication.
+- Access Permissions: Verify user/device permissions for secure data exchange.
 
 ## 🧾 Changelog
-You should see the changlog version in [CHANGELOG.](./CHANGELOG.md)
+You should see the changelog version in [CHANGELOG.](./CHANGELOG.md)
 
 ## 🤝 Contributing
 We welcome contributions! If you'd like to contribute, please follow our [Contributing Guide](CONTRIBUTING.md) for steps on how to get involved.
