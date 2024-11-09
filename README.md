@@ -38,7 +38,7 @@ Thank you for your support and understanding!
 
 ## 💎 Credits
 ### Developers
-- DarThunder
+- [DarThunder](https://github.com/DarThunder)
 
 ### Contributors
-- JoseANG3L
+- [JoseANG3L](https://github.com/JoseANG3L)
