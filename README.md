@@ -1,5 +1,5 @@
 # Minecraft Item Transfer Protocol (MITP)
-<div styles=" width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; flex-direction: column; ">
+<div style=" width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; flex-direction: column; ">
   <center><p>Minecraft Item Transfer Protocol</p></center>
   <center><p>MITP</p></center>
 </div>
@@ -16,25 +16,25 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft](http
 - Logs system: Activity logging for auditing and debugging purposes.
 
 ## ✅ Future Features
-* parseRequest(): Parse incoming requests.
-* buildResponse(): Build responses to requests.
-* ParseMessageBody(): Parse the message body.
 * verifyCredentials(): Verify authentication credentials.
-* HandleError(): Handle errors.
-* sendErrorResponse(): Send an error response.
-* encryptData(): Encrypt data before transmission.
 * checkAccessPermissions(): Verify access permissions.
-* emitEvent(): Emit events for monitoring.
 * getSupportedVersion(): Get the supported version of the protocol.
 
 ## 🧾 Changelog
 You should see the changlog version in [CHANGELOG.](./CHANGELOG.md)
 
+## 🤝 Contributing
+We welcome contributions! If you'd like to contribute, please follow our [Contributing Guide](CONTRIBUTING.md) for steps on how to get involved.
+
 ## © License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
 
-<!--## ☕ Tips
---<a target="_blank" href="https://buymeacoffee.com/darthunder">Buy me a Coffee</a>-->
+## Project status
+This project will be temporarily paused due to personal/professional commitments. I will be busy until early December and, during this time, I won't be able to maintain, add new features, or address issues immediately. I deeply appreciate your understanding and patience.
+
+The project will remain available for use as it is, but no new updates are expected until my return.
+
+Thank you for your support and understanding!
 
 ## 💎 Credits
 ### Developers
