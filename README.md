@@ -5,7 +5,7 @@
 </div>
 
 ## 🔎 About
-MITP is a protocol for item transfer within Minecraft using [ComputerCraft](https://github.com/dan200/ComputerCraft). The goal is to establish an efficient connection between devices for the reliable exchange of items and data in Minecraft. MITP simulates the behavior of a basic TCP/IP protocol to ensure transmission reliability and security.
+MITP is a protocol for item transfer within Minecraft using [ComputerCraft: Tweaked](https://github.com/cc-tweaked/CC-Tweaked). The goal is to establish an efficient connection between devices for the reliable exchange of items and data in Minecraft. MITP simulates the behavior of a basic TCP/IP protocol to ensure transmission reliability and security.
 
 ## ⚙️ Features
 - Item Transfers: Send and receive items between devices within Minecraft.
