@@ -1,7 +1,7 @@
 # Minecraft Item Transfer Protocol (MITP)
 <div style=" width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; flex-direction: column; ">
   <center><p>Minecraft Item Transfer Protocol</p></center>
-  <center><p>MITP</p></center>
+  <p>MITP</p>
 </div>
 
 ## 🔎 About
