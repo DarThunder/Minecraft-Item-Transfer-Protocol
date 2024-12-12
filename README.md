@@ -35,13 +35,6 @@ We welcome contributions! If you'd like to contribute, please follow our [Contri
 ## © License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](./LICENSE) file for more details.
 
-## Project status
-This project will be temporarily paused due to personal/professional commitments. I will be busy until early December and, during this time, I won't be able to maintain, add new features, or address issues immediately. I deeply appreciate your understanding and patience.
-
-The project will remain available for use as it is, but no new updates are expected until my return.
-
-Thank you for your support and understanding!
-
 ## 💎 Credits
 ### Developers
 - [DarThunder](https://github.com/DarThunder)
