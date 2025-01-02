@@ -7,7 +7,8 @@ This documentation is aimed at developers looking to understand the protocol’s
 ## Download
 To install the protocol and all its dependencies, simply paste the following command into a computer terminal:
 ```bash
-wget run https://raw.githubusercontent.com/DarThunder/Minecraft-Item-Transfer-Protocol/refs/heads/main/installer.lua```
+wget run https://raw.githubusercontent.com/DarThunder/Minecraft-Item-Transfer-Protocol/refs/heads/main/installer.lua
+```
 You will see the installation progress, and once it's finished, you can start using it without any issues.
 
 ## Architecture
@@ -50,7 +51,8 @@ Allows the client to send messages to the server.
 local success = client:transmit("Hello Server", "INFO")
 if not success then
     print("Error transmitting the message.")
-end```
+end
+```
 
 - `2.2 Client:recv()`
 Allows the client to receive messages from the server.
@@ -68,7 +70,8 @@ if message then
     print("Message received:", message.data.data)
 else
     print("No message received.")
-end```
+end
+```
 
 ### 3. Server
 The server is the other main actor, which is responsible for gathering information.
@@ -86,7 +89,8 @@ Example:
 server:on("INFO", function(conn, packet)
     print("Received:", packet.data.data)
     conn:send("Response from the server")
-end)```
+end)
+```
 
 - `3.2 Server:autoRecv()`
 Handles incoming requests. It is typically added at the end of the program.
@@ -97,7 +101,8 @@ Handles incoming requests. It is typically added at the end of the program.
 
 Example:
 ```lua
-server:autoRecv()```
+server:autoRecv()
+```
 
 ### 4. Connection
 Although there are only two main actors, the Server has the characteristic that the function used in the on method has another sub-actor called "connection," which is the socket that will be used to communicate with a specific client.
@@ -118,4 +123,5 @@ Example:
 local success = conn:send("Hello client!")
 if not success then
   print("Error sending the message.")
-end```
+end
+```
