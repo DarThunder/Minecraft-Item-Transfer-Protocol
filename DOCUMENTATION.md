@@ -7,7 +7,7 @@ This documentation is aimed at developers looking to understand the protocol’s
 ## Download
 To install the protocol and all its dependencies, simply paste the following command into a computer terminal:
 ```bash
-wget run **URL**```
+wget run https://raw.githubusercontent.com/DarThunder/Minecraft-Item-Transfer-Protocol/refs/heads/main/installer.lua```
 You will see the installation progress, and once it's finished, you can start using it without any issues.
 
 ## Architecture
