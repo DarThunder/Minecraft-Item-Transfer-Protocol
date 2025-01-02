@@ -1,3 +1,4 @@
+# Alpha
 ## 0.5
 ### Features
 - Added session creation.
@@ -78,3 +79,44 @@
 
 ### Fixes
 - Minor fixes to improve the robustness of message validation and handling.
+
+# Beta
+## 0.4.7
+#### Hey fellas, it's been a while since the last changelog, but here are the subtle changes and the transition to the beta version of the protocol.
+
+## Changes
+- Rewritten the main ̣`MITP` module.
+- Created subdirectory `lib/cipher`.
+- Rewritten the `encryptLib module`.
+- Created subdirectory `lib/compress`.
+- Added `huffman` module.
+- Added `huffmanTree` module.
+- Added `huffmanNode` module.
+- Created subdirectory `lib/network`.
+- Added `client` module.
+- Added `server` module.
+- Added `socket` module.
+- Added `Tcp` module.
+- Created subdirectory `lib/utils`.
+- Added `dataUtils` module.
+- Rewritten the `validatorLib` module -> `validLib`.
+- Created subdirectory `lib/var`.
+- Added `client` module.
+- Added `server` module.
+
+## Improvements
+- Changed the initialization of the actors (Client and Server), along with utility functions and required parameters (see Documentation for more details).
+- Modified `AES-128 encryption`, now using the actual `Rijndael algorithm` instead of a simple XOR.
+- Added a compression layer to messages using `Huffman encoding`.
+- Changed the event system, along with the storage of status flags, which are now stored in the global table `_G.mitp.flags`.
+- Modified the asynchronous system.
+- Replaced session handling with socket-based communication.
+- Changed the logic for data transmission and reception to emulate `TCP`.
+
+## Fixes
+- Fixed prime generation and primality testing with the `Miller-Rabin algorithm`.
+- Fixed an issue with the `sha256` function that generated the same hash regardless of the input.
+- Improved the overall stability of the system.
+
+## Notes
+#### Happy New Year, everyone! It's been a challenging year and months, but I managed to push this project forward. At one point, I decided to rewrite all the code in a moment of madness, and now we have all of this. Originally, the protocol was in the final stages of development, but it turns out there's still a long journey ahead. So, I'll see you in the next changelog!

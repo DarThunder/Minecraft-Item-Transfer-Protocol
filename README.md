@@ -1,11 +1,6 @@
 # Minecraft Item Transfer Protocol (MITP)
-<div style=" width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; flex-direction: column; ">
-  <center><p>Minecraft Item Transfer Protocol</p></center>
-  <p>MITP</p>
-</div>
-
 ## 🔎 About
-MITP is a protocol for item transfer within Minecraft using [ComputerCraft: Tweaked](https://github.com/cc-tweaked/CC-Tweaked). The goal is to establish an efficient connection between devices for the reliable exchange of items and data in Minecraft. MITP simulates the behavior of a basic TCP/IP protocol to ensure transmission reliability and security.
+MITP is a protocol for item transfer within Minecraft using [ComputerCraft: Tweaked](https://github.com/cc-tweaked/CC-Tweaked). The goal is to establish an efficient connection between devices for the reliable exchange of data in Minecraft. MITP simulates the behavior of a basic TCP persistant protocol to ensure transmission reliability and security.
 
 ## ⚙️ Features
 - Item Transfers: Send and receive items between devices within Minecraft.
@@ -19,12 +14,46 @@ MITP is a protocol for item transfer within Minecraft using [ComputerCraft: Twea
 - Encryption: AES encryption and SHA-256 for data security.
 - Logging: Built-in activity logging for auditing and debugging.
 
-## ✅ Future Features
-- Request Parsing: Parse incoming requests to extract relevant data.
-- Response Handling: Automatically build and send responses.
-- Credential Verification: Ensure that only authorized devices can send or receive data.
-- Error Handling: Gracefully handle and report errors during communication.
-- Access Permissions: Verify user/device permissions for secure data exchange.
+## ✅ RoadMap
+### Short-Term (1-2 months)
+**Goal:** Improve asynchronous communication and add HMAC.
+
+- **Actions:**
+  - Refine the asynchronous event system.
+  - Implement the HMAC (Hashed Message Authentication Code) algorithm to ensure message integrity and authenticity.
+  - Optimize the efficiency of the asynchronous message flow.
+  - Perform stability tests with different data loads.
+
+**Start Date:** 01/2025  
+**End Date:** 02/2025
+
+---
+
+### Mid-Term (3-4 months)
+**Goal:** Add basic, stable reconnection mechanisms.
+
+- **Actions:**
+  - Implement an automatic reconnection system in case of connection loss.
+  - Add failure handling for disconnection scenarios.
+  - Implement temporary data storage during reconnection.
+  - Test stability under different network conditions.
+
+**Start Date:** 02/2025  
+**End Date:** 04/2025
+
+---
+
+### Long-Term (6+ months)
+**Goal:** Support functions and files of any extension.
+
+- **Actions:**
+  - Develop a system to handle files of any type or extension.
+  - Create a mechanism to invoke remote functions through the protocol.
+  - Optimize the transfer of large files and remote functions.
+  - Conduct extensive testing to ensure interoperability with different systems.
+
+**Start Date:** 05/2025  
+**End Date:** 10/2025
 
 ## 🧾 Changelog
 You should see the changelog version in [CHANGELOG.](./CHANGELOG.md)
