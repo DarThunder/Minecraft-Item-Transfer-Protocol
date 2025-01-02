@@ -1,5 +1,5 @@
-local AES = require("lib/cipher/encryptLib")
-local dataUtils = require("lib/utils/dataUtils")
+local AES = require("/protocol/lib/cipher/encryptLib")
+local dataUtils = require("/protocol/lib/utils/dataUtils")
 
 local valid = {}
 

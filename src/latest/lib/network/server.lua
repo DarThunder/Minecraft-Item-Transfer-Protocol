@@ -1,6 +1,6 @@
-require("lib/var/server")
-local AES = require("lib/cipher/encryptLib")
-local huffman = require("lib/compress/huffman")
+require("/protocol/lib/var/server")
+local AES = require("/protocol/lib/cipher/encryptLib")
+local huffman = require("/protocol/lib/compress/huffman")
 
 local server = {}
 local serverMethods = {}

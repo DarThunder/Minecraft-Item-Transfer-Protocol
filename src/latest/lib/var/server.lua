@@ -1,6 +1,6 @@
 if not _G.mitp.flags then printError("'mitp.flags' global table not found. Please ensure it is initialized correctly.") error() end
 
-local AES = require("lib/cipher/encryptLib")
+local AES = require("/protocol/lib/cipher/encryptLib")
 
 _G.mitp.flags[0x01].action = function (conn)
     conn = nil

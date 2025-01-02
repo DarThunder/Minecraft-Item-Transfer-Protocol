@@ -1,6 +1,6 @@
-local AES = require("lib/cipher/encryptLib")
-local dataUtils = require("lib/utils/dataUtils")
-local valid = require("lib/utils/validLib")
+local AES = require("/protocol/lib/cipher/encryptLib")
+local dataUtils = require("/protocol/lib/utils/dataUtils")
+local valid = require("/protocol/lib/utils/validLib")
 
 local TCP = {}
 local MAX_SIZE = 128

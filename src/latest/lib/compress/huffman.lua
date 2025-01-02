@@ -1,6 +1,6 @@
 local huffman = {}
-local node = require("lib/compress/huffmanNode")
-local tree = require("lib/compress/huffmanTree")
+local node = require("/protocol/lib/compress/huffmanNode")
+local tree = require("/protocol/lib/compress/huffmanTree")
 
 local function serialize(t, indent)
     indent = indent or ""

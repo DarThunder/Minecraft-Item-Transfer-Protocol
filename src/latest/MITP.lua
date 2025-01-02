@@ -1,13 +1,13 @@
 _G.mitp = _G.mitp or {}
 
-local TCP = require("lib/network/Tcp")
-local socket = require("lib/network/socket")
+local TCP = require("/protocol/lib/network/Tcp")
+local socket = require("/protocol/lib/network/socket")
 
 local MITP = {}
 local Version = "1.0"
 
 function MITP:client(ip, replyPort)
-    local client = require("lib/network/client")
+    local client = require("/protocol/lib/network/client")
     local newClient = {}
 
     local port = math.random(2^15 * 1.5, 2^16 - 1)
@@ -19,7 +19,7 @@ function MITP:client(ip, replyPort)
 end
 
 function MITP:server(port)
-    local server = require("lib/network/server")
+    local server = require("/protocol/lib/network/server")
     local newServer = {}
 
     newServer.sockets = {listener = socket.newSocket(port, nil, nil)}

@@ -1,4 +1,4 @@
-local node = require("lib/compress/huffmanNode")
+local node = require("/protocol/lib/compress/huffmanNode")
 
 local tree = {}
 local treeMethods = {}

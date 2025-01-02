@@ -1,5 +1,5 @@
-local AES = require("lib/cipher/encryptLib")
-local huffman = require("lib/compress/huffman")
+local AES = require("/protocol/lib/cipher/encryptLib")
+local huffman = require("/protocol/lib/compress/huffman")
 
 local client = {}
 local clientMethods = {}

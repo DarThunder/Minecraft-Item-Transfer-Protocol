@@ -1,18 +1,15 @@
 # Minecraft Item Transfer Protocol (MITP)
-## 🔎 About
-MITP is a protocol for item transfer within Minecraft using [ComputerCraft: Tweaked](https://github.com/cc-tweaked/CC-Tweaked). The goal is to establish an efficient connection between devices for the reliable exchange of data in Minecraft. MITP simulates the behavior of a basic TCP persistant protocol to ensure transmission reliability and security.
+## 🔎 Overview
+Minecraft Item Transfer Protocol (MITP) is a high-performance communication protocol designed to handle item data transfers and general communication in Minecraft, optimized for both asynchronous communication and secure data transmission. This protocol implements advanced cryptographic techniques (AES-128, SHA-256, HMAC) and supports compression via Huffman coding, ensuring efficient and secure data exchanges.
 
 ## ⚙️ Features
-- Item Transfers: Send and receive items between devices within Minecraft.
-- Session Management: Maintain reliable connections during item transfers.
-- Message Validation: Ensures messages are valid with headers, checksums, and authentication.
-- Secure Connections: Data encryption and authentication for secure communication.
-- Ephemeral Ports: Temporary communication ports for secure, short-term connections.
-- Event Handling: New event-subscription system for better flexibility in handling actions.
-- Automatic Message Handling: Supports automatic handling of TCP and MITP messages.
-- Asynchronous Communication: Non-blocking communication for better performance.
-- Encryption: AES encryption and SHA-256 for data security.
-- Logging: Built-in activity logging for auditing and debugging.
+- AES-128 Encryption: Uses Rijndael encryption for secure data transmission.
+- SHA-256 Hashing: Ensures message integrity with SHA-256 signatures.
+- HMAC: Provides additional message authentication.
+- Compression: Implements Huffman coding for data compression.
+- TCP-like Communication: Emulates a reliable TCP connection for sending and receiving data.
+- Asynchronous Communication: Supports non-blocking communication to improve performance.
+- Event-driven Architecture: Flexible event handling system to manage different communication events.
 
 ## ✅ RoadMap
 ### Short-Term (1-2 months)
